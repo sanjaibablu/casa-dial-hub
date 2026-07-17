@@ -9,38 +9,95 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardPropertiesRouteImport } from './routes/_dashboard.properties'
+import { Route as DashboardKnowledgeRouteImport } from './routes/_dashboard.knowledge'
+import { Route as DashboardExecutivesRouteImport } from './routes/_dashboard.executives'
+import { Route as DashboardDialectRouteImport } from './routes/_dashboard.dialect'
 
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/_dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardPropertiesRoute = DashboardPropertiesRouteImport.update({
+  id: '/properties',
+  path: '/properties',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardKnowledgeRoute = DashboardKnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardExecutivesRoute = DashboardExecutivesRouteImport.update({
+  id: '/executives',
+  path: '/executives',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardDialectRoute = DashboardDialectRouteImport.update({
+  id: '/dialect',
+  path: '/dialect',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dialect': typeof DashboardDialectRoute
+  '/executives': typeof DashboardExecutivesRoute
+  '/knowledge': typeof DashboardKnowledgeRoute
+  '/properties': typeof DashboardPropertiesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dialect': typeof DashboardDialectRoute
+  '/executives': typeof DashboardExecutivesRoute
+  '/knowledge': typeof DashboardKnowledgeRoute
+  '/properties': typeof DashboardPropertiesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_dashboard': typeof DashboardRouteWithChildren
+  '/_dashboard/dialect': typeof DashboardDialectRoute
+  '/_dashboard/executives': typeof DashboardExecutivesRoute
+  '/_dashboard/knowledge': typeof DashboardKnowledgeRoute
+  '/_dashboard/properties': typeof DashboardPropertiesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/dialect' | '/executives' | '/knowledge' | '/properties'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/dialect' | '/executives' | '/knowledge' | '/properties'
+  id:
+    | '__root__'
+    | '/'
+    | '/_dashboard'
+    | '/_dashboard/dialect'
+    | '/_dashboard/executives'
+    | '/_dashboard/knowledge'
+    | '/_dashboard/properties'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_dashboard': {
+      id: '/_dashboard'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +105,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_dashboard/properties': {
+      id: '/_dashboard/properties'
+      path: '/properties'
+      fullPath: '/properties'
+      preLoaderRoute: typeof DashboardPropertiesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/knowledge': {
+      id: '/_dashboard/knowledge'
+      path: '/knowledge'
+      fullPath: '/knowledge'
+      preLoaderRoute: typeof DashboardKnowledgeRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/executives': {
+      id: '/_dashboard/executives'
+      path: '/executives'
+      fullPath: '/executives'
+      preLoaderRoute: typeof DashboardExecutivesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/dialect': {
+      id: '/_dashboard/dialect'
+      path: '/dialect'
+      fullPath: '/dialect'
+      preLoaderRoute: typeof DashboardDialectRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardDialectRoute: typeof DashboardDialectRoute
+  DashboardExecutivesRoute: typeof DashboardExecutivesRoute
+  DashboardKnowledgeRoute: typeof DashboardKnowledgeRoute
+  DashboardPropertiesRoute: typeof DashboardPropertiesRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardDialectRoute: DashboardDialectRoute,
+  DashboardExecutivesRoute: DashboardExecutivesRoute,
+  DashboardKnowledgeRoute: DashboardKnowledgeRoute,
+  DashboardPropertiesRoute: DashboardPropertiesRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
