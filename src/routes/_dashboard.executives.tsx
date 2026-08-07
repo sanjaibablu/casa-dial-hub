@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { DataTable, type Column } from "@/components/data-table";
 import { RecordDialog, type FieldConfig } from "@/components/record-dialog";
@@ -8,49 +8,36 @@ export const Route = createFileRoute("/_dashboard/executives")({
   component: ExecutivesPage,
 });
 
-const SYSTEM_KEYS = new Set(["id", "created_at", "updated_at", "inserted_at"]);
+type Executive = CrudRow & {
+  name?: string;
+  phone?: string;
+  Email?: string;
+};
 
-function humanize(k: string) {
-  return k
-    .split("_")
-    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-    .join(" ");
-}
+const fields: FieldConfig[] = [
+  { key: "name", label: "Name", required: true, placeholder: "Ravi Kumar" },
+  { key: "phone", label: "Phone", placeholder: "+91 98765 43210" },
+  { key: "Email", label: "Email", placeholder: "ravi@company.com" },
+];
 
 function ExecutivesPage() {
-  const { list, create, update, remove } = useCrud<CrudRow>("executives", "id");
+  const { list, create, update, remove } = useCrud<Executive>("executives", "id");
   const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<CrudRow | null>(null);
+  const [editing, setEditing] = useState<Executive | null>(null);
 
-  const detectedKeys = useMemo(() => {
-    const first = list.data?.[0];
-    if (first) {
-      return Object.keys(first).filter((k) => !SYSTEM_KEYS.has(k));
-    }
-    return ["name", "email", "phone", "role"];
-  }, [list.data]);
-
-  const columns: Column<CrudRow>[] = detectedKeys.slice(0, 5).map((k, i) => ({
-    key: k,
-    header: humanize(k),
-    render: (r) =>
-      i === 0 ? (
-        <span className="font-medium">{String(r[k] ?? "—")}</span>
-      ) : (
-        String(r[k] ?? "—")
-      ),
-  }));
-
-  const fields: FieldConfig[] = detectedKeys.map((k) => {
-    const sample = list.data?.[0]?.[k];
-    const type: FieldConfig["type"] =
-      typeof sample === "number" ? "number" : "text";
-    return { key: k, label: humanize(k), type };
-  });
+  const columns: Column<Executive>[] = [
+    {
+      key: "name",
+      header: "Name",
+      render: (r) => <span className="font-medium">{r.name ?? "—"}</span>,
+    },
+    { key: "phone", header: "Phone", render: (r) => r.phone ?? "—" },
+    { key: "Email", header: "Email", render: (r) => r.Email ?? "—" },
+  ];
 
   return (
     <>
-      <DataTable<CrudRow>
+      <DataTable<Executive>
         title="Executives"
         description="Manage your sales team roster."
         columns={columns}
