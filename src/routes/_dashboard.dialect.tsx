@@ -11,13 +11,13 @@ export const Route = createFileRoute("/_dashboard/dialect")({
 type Entry = CrudRow & {
   regional_word?: string;
   standard_meaning?: string;
-  example?: string;
+  example_usage?: string;
 };
 
 const fields: FieldConfig[] = [
   { key: "regional_word", label: "Regional Word", required: true, placeholder: "shabab" },
   { key: "standard_meaning", label: "Standard Meaning", required: true, placeholder: "young people" },
-  { key: "example", label: "Example", type: "textarea", placeholder: "Optional example sentence…" },
+  { key: "example_usage", label: "Example", type: "textarea", placeholder: "Optional example sentence…" },
 ];
 
 function DialectPage() {
@@ -33,10 +33,10 @@ function DialectPage() {
     },
     { key: "standard_meaning", header: "Standard Meaning", render: (r) => r.standard_meaning ?? "—" },
     {
-      key: "example",
+      key: "example_usage",
       header: "Example",
       render: (r) => (
-        <span className="text-muted-foreground italic line-clamp-2">{r.example ?? "—"}</span>
+        <span className="text-muted-foreground italic line-clamp-2">{r.example_usage ?? "—"}</span>
       ),
     },
   ];
