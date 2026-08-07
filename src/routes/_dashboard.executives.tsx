@@ -11,12 +11,14 @@ export const Route = createFileRoute("/_dashboard/executives")({
 type Executive = CrudRow & {
   name?: string;
   phone?: string;
+  whatsapp?: string;
   Email?: string;
 };
 
 const fields: FieldConfig[] = [
   { key: "name", label: "Name", required: true, placeholder: "Ravi Kumar" },
   { key: "phone", label: "Phone", placeholder: "+91 98765 43210" },
+  { key: "whatsapp", label: "WhatsApp", placeholder: "+91 98765 43210" },
   { key: "Email", label: "Email", placeholder: "ravi@company.com" },
 ];
 
@@ -32,6 +34,7 @@ function ExecutivesPage() {
       render: (r) => <span className="font-medium">{r.name ?? "—"}</span>,
     },
     { key: "phone", header: "Phone", render: (r) => r.phone ?? "—" },
+    { key: "whatsapp", header: "WhatsApp", render: (r) => r.whatsapp ?? "—" },
     { key: "Email", header: "Email", render: (r) => r.Email ?? "—" },
   ];
 
