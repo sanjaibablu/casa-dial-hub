@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardPropertiesRouteImport } from './routes/_dashboard.properties'
@@ -16,6 +17,11 @@ import { Route as DashboardKnowledgeRouteImport } from './routes/_dashboard.know
 import { Route as DashboardExecutivesRouteImport } from './routes/_dashboard.executives'
 import { Route as DashboardDialectRouteImport } from './routes/_dashboard.dialect'
 
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/_dashboard',
   getParentRoute: () => rootRouteImport,
@@ -48,6 +54,7 @@ const DashboardDialectRoute = DashboardDialectRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/dialect': typeof DashboardDialectRoute
   '/executives': typeof DashboardExecutivesRoute
   '/knowledge': typeof DashboardKnowledgeRoute
@@ -55,6 +62,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/dialect': typeof DashboardDialectRoute
   '/executives': typeof DashboardExecutivesRoute
   '/knowledge': typeof DashboardKnowledgeRoute
@@ -64,6 +72,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_dashboard': typeof DashboardRouteWithChildren
+  '/chat': typeof ChatRoute
   '/_dashboard/dialect': typeof DashboardDialectRoute
   '/_dashboard/executives': typeof DashboardExecutivesRoute
   '/_dashboard/knowledge': typeof DashboardKnowledgeRoute
@@ -71,13 +80,20 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dialect' | '/executives' | '/knowledge' | '/properties'
+  fullPaths:
+    | '/'
+    | '/chat'
+    | '/dialect'
+    | '/executives'
+    | '/knowledge'
+    | '/properties'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dialect' | '/executives' | '/knowledge' | '/properties'
+  to: '/' | '/chat' | '/dialect' | '/executives' | '/knowledge' | '/properties'
   id:
     | '__root__'
     | '/'
     | '/_dashboard'
+    | '/chat'
     | '/_dashboard/dialect'
     | '/_dashboard/executives'
     | '/_dashboard/knowledge'
@@ -87,10 +103,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  ChatRoute: typeof ChatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_dashboard': {
       id: '/_dashboard'
       path: ''
@@ -157,6 +181,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  ChatRoute: ChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

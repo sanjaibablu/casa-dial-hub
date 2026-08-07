@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Building2, Users, BookOpen, FileText } from "lucide-react";
+import { Building2, Users, BookOpen, FileText, MessageCircle } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +17,7 @@ const items = [
   { title: "Executives", url: "/executives", icon: Users },
   { title: "Dialect Dictionary", url: "/dialect", icon: BookOpen },
   { title: "Knowledge Base", url: "/knowledge", icon: FileText },
+  { title: "Bhoomi Chat", url: "/chat", icon: MessageCircle },
 ];
 
 export function AppSidebar() {
