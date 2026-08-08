@@ -54,12 +54,15 @@ export function BhoomiChat({ className }: { className?: string }) {
       setMessages((m) => [...m, reply]);
     } catch (err) {
       console.error(err);
+      const raw = err instanceof Error ? err.message : String(err);
+      const notDeployed = /not found|404/i.test(raw);
       setMessages((m) => [
         ...m,
         {
           role: "assistant",
-          content:
-            "Kshama kijiye 🙏 — I'm having trouble connecting right now. Please try again in a moment.",
+          content: notDeployed
+            ? "Kshama kijiye 🙏 — my assistant service (`bhoomi-chat`) isn't deployed on this project yet, so I can't answer questions. Please deploy the edge function and try again."
+            : `Kshama kijiye 🙏 — I'm having trouble connecting right now (${raw}). Please try again in a moment.`,
         },
       ]);
     } finally {
