@@ -41,7 +41,7 @@ export function BhoomiChat({ className }: { className?: string }) {
 
     try {
       console.log("[bhoomi-chat] invoking edge function with", history);
-      const { data, error } = await supabase.functions.invoke("bhoomi-chat", {
+      const { data, error } = await supabase.functions.invoke("Bhoomi---Chat", {
         body: { messages: history },
       });
       console.log("[bhoomi-chat] response", { data, error });
@@ -60,7 +60,7 @@ export function BhoomiChat({ className }: { className?: string }) {
       // Probe the endpoint directly so we can surface the real HTTP status/body.
       let detail = err instanceof Error ? err.message : String(err);
       try {
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/bhoomi-chat`, {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/Bhoomi---Chat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
