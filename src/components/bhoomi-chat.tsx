@@ -40,9 +40,11 @@ export function BhoomiChat({ className }: { className?: string }) {
     setIsTyping(true);
 
     try {
+      console.log("[bhoomi-chat] invoking edge function with", history);
       const { data, error } = await supabase.functions.invoke("bhoomi-chat", {
         body: { messages: history },
       });
+      console.log("[bhoomi-chat] response", { data, error });
       if (error) throw error;
       const reply: ChatMessage = {
         role: "assistant",
@@ -53,23 +55,52 @@ export function BhoomiChat({ className }: { className?: string }) {
       };
       setMessages((m) => [...m, reply]);
     } catch (err) {
-      console.error(err);
-      const raw = err instanceof Error ? err.message : String(err);
-      const notDeployed = /not found|404/i.test(raw);
+      console.error("[bhoomi-chat] invoke failed", err);
+
+      // Probe the endpoint directly so we can surface the real HTTP status/body.
+      let detail = err instanceof Error ? err.message : String(err);
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/bhoomi-chat`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ messages: history }),
+        });
+        const text = await res.text();
+        console.log("[bhoomi-chat] direct fetch", res.status, text);
+        detail = `HTTP ${res.status} — ${text.slice(0, 300)}`;
+        if (res.ok) {
+          try {
+            const parsed = JSON.parse(text);
+            const content = parsed?.content ?? parsed?.message?.content;
+            if (content) {
+              setMessages((m) => [...m, { role: "assistant", content }]);
+              return;
+            }
+          } catch {
+            /* fall through to error message */
+          }
+        }
+      } catch (probeErr) {
+        console.error("[bhoomi-chat] direct fetch failed", probeErr);
+        detail = `${detail} | direct fetch: ${
+          probeErr instanceof Error ? probeErr.message : String(probeErr)
+        }`;
+      }
+
       setMessages((m) => [
         ...m,
-        {
-          role: "assistant",
-          content: notDeployed
-            ? "Kshama kijiye 🙏 — my assistant service (`bhoomi-chat`) isn't deployed on this project yet, so I can't answer questions. Please deploy the edge function and try again."
-            : `Kshama kijiye 🙏 — I'm having trouble connecting right now (${raw}). Please try again in a moment.`,
-        },
+        { role: "assistant", content: `Kshama kijiye 🙏 — request failed.\n\n${detail}` },
       ]);
     } finally {
       setIsTyping(false);
       inputRef.current?.focus();
     }
   }
+
 
   return (
     <div
