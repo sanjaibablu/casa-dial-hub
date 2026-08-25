@@ -7,8 +7,9 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 // On Netlify (NETLIFY=true in their build image) we build with Nitro's netlify
-// preset so the SSR server deploys as a Netlify function. Inside Lovable the
-// default Cloudflare target is used.
+// preset so the SSR server deploys as a Netlify function. Netlify is configured
+// to publish dist/client, so Nitro must write its public assets there too.
+// Inside Lovable the default Cloudflare target is used.
 const isNetlify = !!process.env.NETLIFY;
 
 export default defineConfig({
@@ -17,6 +18,13 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
-  ...(isNetlify ? { nitro: { preset: "netlify" } } : {}),
+  ...(isNetlify
+    ? {
+        nitro: {
+          preset: "netlify",
+          output: { publicDir: "dist/client" },
+        },
+      }
+    : {}),
 });
 
